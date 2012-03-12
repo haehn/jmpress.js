@@ -2,38 +2,46 @@
  * ajax.js
  * Load steps via ajax
  */
-(function( $, document, window, undefined ) {
+(function($, document, window, undefined) {
 
-	'use strict';
-	var $jmpress = $.jmpress;
+  'use strict';
+  var $jmpress = $.jmpress;
+  
+  /* DEFINES */
+  var afterStepLoaded = 'afterStepLoaded';
+  
+  /* FUNCTIONS */
+  function randomString() {
 
-	/* DEFINES */
-	var afterStepLoaded = 'afterStepLoaded';
+    return "" + Math.round(Math.random() * 100000, 0);
+  }
+  
+  /* REGISTER EVENTS */
+  $jmpress('register', afterStepLoaded);
+  
+  /* HOOKS */
+  $jmpress('initStep', function(step, eventData) {
 
-	/* FUNCTIONS */
-	function randomString() {
-		return "" + Math.round(Math.random() * 100000, 0);
-	}
+    eventData.stepData.src = $(step).attr('href') || eventData.data.src ||
+        false;
+  });
+  $jmpress('loadStep', function(step, eventData) {
 
-	/* REGISTER EVENTS */
-	$jmpress('register', afterStepLoaded);
+    var stepData = eventData.stepData, href = stepData && stepData.src;
+    if (href) {
+      console.log('saifsafasf');
+      $(step).load(
+          href,
+          function(response, status, xhr) {
 
-	/* HOOKS */
-	$jmpress('initStep', function( step, eventData ) {
-		eventData.stepData.src = $(step).attr('href') || eventData.data.src || false;
-	});
-	$jmpress('loadStep', function( step, eventData ) {
-		var stepData = eventData.stepData,
-			href = stepData && stepData.src;
-		if ( href ) {
-			$(step).load(href, function(response, status, xhr) {
-				$(eventData.jmpress).jmpress('fire', afterStepLoaded, step, $.extend({}, eventData, {
-					response: response
-					,status: status
-					,xhr: xhr
-				}));
-			});
-		}
-	});
-
+            $(eventData.jmpress).jmpress('fire', afterStepLoaded, step,
+                $.extend({}, eventData, {
+                  response: response,
+                  status: status,
+                  xhr: xhr
+                }));
+          });
+    }
+  });
+  
 }(jQuery, document, window));
